@@ -1,7 +1,7 @@
 
 # coding: utf-8
 
-# In[187]:
+# In[3]:
 
 
 import numpy as np # linear algebra
@@ -12,6 +12,20 @@ from sklearn.neighbors import KNeighborsClassifier
 from scipy.spatial import distance
 
 
+# field_train = ['SalePrice', 'OverallQual', 'GrLivArea', 'GarageCars', 'GarageArea', 'TotalBsmtSF', 'FullBath', 'YearBuilt', 'YearRemodAdd', '1stFlrSF', 'TotRmsAbvGrd']
+# field_test = ['OverallQual', 'GrLivArea', 'GarageCars', 'GarageArea', 'TotalBsmtSF', 'FullBath', 'YearBuilt', 'YearRemodAdd', '1stFlrSF', 'TotRmsAbvGrd']
+
+# train_data = pd.read_csv('./train.csv', skipinitialspace=True, usecols=field_train).astype(str).astype(int)
+# display (train_data.head())
+# train_data=np.array(train_data)
+# display(train_data)
+
+
+# test_data = pd.read_csv('./test.csv', skipinitialspace=True, usecols=field_test).fillna(0).astype(np.int64)
+# display (test_data.head())
+# test_data=np.array(test_data)
+# display(test_data)
+# display(test_data[0])
 
 
 # In[ ]:
@@ -33,7 +47,7 @@ def train(X_train, y_train):
 
 
 
-# In[190]:
+# In[18]:
 
 
 def predict(X_train, x_test, k):
@@ -45,15 +59,12 @@ def predict(X_train, x_test, k):
 #     for sublist in list:
 #         del sublist[index]
 
-    Y_train = np.delete(X_train, 2, axis=1)
-    for i in range(len(x_test)):
+    Y_train = np.delete(X_train, 10, axis=1)
+    for i in range(len(Y_train)):
         # first we compute the euclidean distance
 #         print "str(Y_train[i]) " + str(Y_train[i])
         eudistance = distance.euclidean(x_test, Y_train[i])
-#         eudistance = distance.euclidean(a, b)
-    
-#         print "str(X_train[0]) " + str(X_train[0]) + " predict " + str(x_test) + ", distance = " + str(eudistance)
-#         distance = np.sqrt(np.sum(np.square(x_test - X_train[i, :])))
+
         # add it to list of distances
         distances.append([eudistance, i])
 
@@ -61,11 +72,12 @@ def predict(X_train, x_test, k):
     distances = sorted(distances)
 
     # make a list of the k neighbors' targets
-    for i in range(k):
-        salePrices = distances[i][0]
+    for i in range(k): 
+        index = distances[i][1]
+        salePrices = X_train[index][10]
         targets.append(salePrices)
 
-    # return most common target
+    # return the mean
     return reduce(lambda x, y: x + y, targets) / len(targets)
 
 def kNearestNeighbor(X_train, X_test, predictions, k):
@@ -75,11 +87,10 @@ def kNearestNeighbor(X_train, X_test, predictions, k):
         raise ValueError
         
     # train on the input data
-#     train(X_train, y_train)
+    # train(X_train, y_train)
 
     # loop over all observations
     for i in range(len(X_test)):
-#         print str(len(X_train)) + " call predict" + str(k)
         prediction = predict(X_train, X_test[i], k)
         print "X_test[i] " + str(X_test[i]) + ", distance = " + str(prediction)
         predictions.append(prediction)
@@ -107,8 +118,8 @@ def main():
     # fitting the model
     knn.fit(train_data, Y_train)
     # predict the response
-    pred = knn.predict(test_data)
-    print knn.score(test_data, pred)
+#     pred = knn.predict(test_data)
+#     print knn.score(test_data, pred)
     
     predictions = []
     try:
@@ -116,7 +127,7 @@ def main():
         predictions = np.asarray(predictions)
 
         # evaluating accuracy
-#         accuracy = accuracy_score(y_test, predictions) * 100
+        accuracy = accuracy_score(pred, predictions) * 100
         print('\nThe accuracy of OUR classifier is')
 
     except ValueError:
