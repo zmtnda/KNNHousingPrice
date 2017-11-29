@@ -1,7 +1,7 @@
 
 # coding: utf-8
 
-# In[3]:
+# In[71]:
 
 
 import numpy as np # linear algebra
@@ -12,57 +12,39 @@ from sklearn.neighbors import KNeighborsClassifier
 from scipy.spatial import distance
 
 
-# field_train = ['SalePrice', 'OverallQual', 'GrLivArea', 'GarageCars', 'GarageArea', 'TotalBsmtSF', 'FullBath', 'YearBuilt', 'YearRemodAdd', '1stFlrSF', 'TotRmsAbvGrd']
-# field_test = ['OverallQual', 'GrLivArea', 'GarageCars', 'GarageArea', 'TotalBsmtSF', 'FullBath', 'YearBuilt', 'YearRemodAdd', '1stFlrSF', 'TotRmsAbvGrd']
 
-# train_data = pd.read_csv('./train.csv', skipinitialspace=True, usecols=field_train).astype(str).astype(int)
-# display (train_data.head())
-# train_data=np.array(train_data)
-# display(train_data)
-
-
-# test_data = pd.read_csv('./test.csv', skipinitialspace=True, usecols=field_test).fillna(0).astype(np.int64)
-# display (test_data.head())
-# test_data=np.array(test_data)
-# display(test_data)
-# display(test_data[0])
-
-
-# In[ ]:
+# In[72]:
 
 
 def train(X_train, y_train):
     return
 
 
-# In[ ]:
+# In[73]:
 
 
+def kNearestNeighbor(X_train, X_test, predictions, k):
+    # check if k larger than n
+    
+    if k > len(X_train):
+        raise ValueError
+        
+    # train on the input data
+    # train(X_train, y_train)
 
-
-
-# In[ ]:
-
-
-
-
-
-# In[18]:
-
-
+    # loop over all observations
+    for i in range(len(X_test)):
+        prediction = predict(X_train, X_test[i], k)
+        predictions.append(prediction)
+                                 
 def predict(X_train, x_test, k):
 
     distances = []
     targets = []
-#     print "str(X_train[0]) " + str(X_train[0]) + ", str(len(x_test)) " + str(len(x_test))
-
-#     for sublist in list:
-#         del sublist[index]
 
     Y_train = np.delete(X_train, 10, axis=1)
     for i in range(len(Y_train)):
         # first we compute the euclidean distance
-#         print "str(Y_train[i]) " + str(Y_train[i])
         eudistance = distance.euclidean(x_test, Y_train[i])
 
         # add it to list of distances
@@ -79,32 +61,30 @@ def predict(X_train, x_test, k):
 
     # return the mean
     return reduce(lambda x, y: x + y, targets) / len(targets)
-
-def kNearestNeighbor(X_train, X_test, predictions, k):
-    # check if k larger than n
+        
     
-    if k > len(X_train):
-        raise ValueError
-        
-    # train on the input data
-    # train(X_train, y_train)
-
-    # loop over all observations
-    for i in range(len(X_test)):
-        prediction = predict(X_train, X_test[i], k)
-        print "X_test[i] " + str(X_test[i]) + ", distance = " + str(prediction)
-        predictions.append(prediction)
-                                 
-#         predictions.append(predict(X_train, X_test[i], k))
-        
+def calculate_distance(my_knn, sklearn_knn):
+    sum = 0
+    count = 0
+    difference = 0;
+#     print str(len(my_knn))
+    for i in range(len(my_knn)):
+        temp = abs(my_knn[i] - sklearn_knn[i])
+        if temp == 0:
+            count += 1
+        elif difference < temp:
+            difference = temp
+            print str(my_knn[i]) + " - " + str(sklearn_knn[i]) + "=" + str(difference) 
+     
+    return count * 100.00/len(my_knn) 
+    
 def main():
-    knn = KNeighborsClassifier(n_neighbors=20)
     
     field_train = ['SalePrice', 'OverallQual', 'GrLivArea', 'GarageCars', 'GarageArea', 'TotalBsmtSF', 'FullBath', 'YearBuilt', 'YearRemodAdd', '1stFlrSF', 'TotRmsAbvGrd']
     field_test = ['OverallQual', 'GrLivArea', 'GarageCars', 'GarageArea', 'TotalBsmtSF', 'FullBath', 'YearBuilt', 'YearRemodAdd', '1stFlrSF', 'TotRmsAbvGrd']
 
     train_data = pd.read_csv('./train.csv', skipinitialspace=True, usecols=field_train).astype(str).astype(int)
-    Y_train = np.array(train_data['SalePrice']).tolist() 
+    target_col = np.array(train_data['SalePrice']).tolist() 
     display (train_data.head())
     train_data=np.array(train_data).tolist()
     display(train_data[0])
@@ -112,23 +92,27 @@ def main():
     test_data = pd.read_csv('./test.csv', skipinitialspace=True, usecols=field_test).fillna(0).astype(np.int64)
     display (test_data.head())
     test_data=np.array(test_data).tolist()
-#     display(test_data)
     display(test_data[0])
     
+    # sklearn.neighbors' KNN model
+    knn = KNeighborsClassifier(n_neighbors=1)
+    # delete the 10th column 'SalePrice'
+    Y_train = np.delete(train_data, 10, axis=1)
     # fitting the model
-    knn.fit(train_data, Y_train)
+    knn.fit(Y_train, target_col)
     # predict the response
-#     pred = knn.predict(test_data)
-#     print knn.score(test_data, pred)
-    
-    predictions = []
+    sklearn_predictions = knn.predict(test_data)
+
+    # Our KNN model
+    our_predictions = []
     try:
-        kNearestNeighbor(train_data, test_data, predictions, 20)
-        predictions = np.asarray(predictions)
+        kNearestNeighbor(train_data, test_data, our_predictions, 1)
+        our_predictions = np.asarray(our_predictions)
 
         # evaluating accuracy
-        accuracy = accuracy_score(pred, predictions) * 100
-        print('\nThe accuracy of OUR classifier is')
+        print "sklearn' KNN model's output: " +str(sklearn_predictions) + " " + str(len(sklearn_predictions))
+        print "Our' KNN model's output:     " +str(our_predictions) + " " + str(len(our_predictions))
+        print('\nThe accuracy of OUR classifier is ' + "%.2f" % round(calculate_distance(our_predictions, sklearn_predictions),2) + '%')
 
     except ValueError:
         print('Can\'t have more neighbors than training samples!!')
