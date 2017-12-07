@@ -89,13 +89,13 @@ df_train = pd.get_dummies(df_train)
 
 
 #Data transformation into log
-df_train['SalePrice'] = np.log(df_train['SalePrice'])
-df_train['GrLivArea'] = np.log(df_train['GrLivArea'])
+# df_train['SalePrice'] = np.log(df_train['SalePrice'])
+# df_train['GrLivArea'] = np.log(df_train['GrLivArea'])
 
-df_train['HasBsmt'] = pd.Series(len(df_train['TotalBsmtSF']), index=df_train.index)
-df_train['HasBsmt'] = 0 
-df_train.loc[df_train['TotalBsmtSF']>0,'HasBsmt'] = 1
-df_train.loc[df_train['HasBsmt']==1,'TotalBsmtSF'] = np.log(df_train['TotalBsmtSF'])
+# df_train['HasBsmt'] = pd.Series(len(df_train['TotalBsmtSF']), index=df_train.index)
+# df_train['HasBsmt'] = 0 
+# df_train.loc[df_train['TotalBsmtSF']>0,'HasBsmt'] = 1
+# df_train.loc[df_train['HasBsmt']==1,'TotalBsmtSF'] = np.log(df_train['TotalBsmtSF'])
 
 sns.distplot(df_train[df_train['TotalBsmtSF']>0]['TotalBsmtSF'], fit=norm);
 fig = plt.figure()
